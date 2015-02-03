@@ -17,10 +17,6 @@ var app = angular.module('starter', ['ionic'])
       StatusBar.styleDefault();
     }
 
-    // Facebook stuff
-    if (window.cordova.platformId == "browser") {
-      facebookConnectPlugin.browserInit("1580290688872529");
-    }
   });
 })
 
@@ -34,6 +30,7 @@ app.controller("BaseController", function() {
     facebookConnectPlugin.login(['email', 'user_friends'], function(response) {
       self.response = JSON.stringify(response);
       self.userId = response.authResponse.userID;
+      // Make API call
     });
   };
 
