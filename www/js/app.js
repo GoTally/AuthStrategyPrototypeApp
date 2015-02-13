@@ -27,10 +27,31 @@ app.controller("BaseController", function() {
   this.login = function() {
     var self = this;
     console.log('login');
-    facebookConnectPlugin.login(['email', 'user_friends'], function(response) {
+    facebookConnectPlugin.login(['public_profile', 'email', 'name', 'user_friends'], function(response) {
       self.response = JSON.stringify(response);
       self.userId = response.authResponse.userID;
+      self.authToken = response.authResponse.accessToken;
+      console.log(self.response)
+      facebookConnectPlugin.api(self.userId + "/?fields='id,email,name", [], function(response) {
+        self.email = response.email;
+        self.first_name = response.name.split(" ")[0];
+        self.last_name = response.name.split(" ")[1];
+      });
       // Make API call
+      $.ajax({
+        type: 'POST',
+        url: 'https://auth-strategy-api.herokuapp.com/tokens',
+        data: {
+          uid: self.userId,
+          auth_token: self.accessToken,
+          first_name: self.first_name,
+          last_name: self.last_name,
+          email: self.email,
+          provider: 'facebook'
+        }
+      }).done(function(response) {
+        console.log(response);
+      });
     });
   };
 
