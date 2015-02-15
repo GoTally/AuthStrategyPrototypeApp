@@ -52,9 +52,12 @@
       <ion-content>
       <div class="main-content" ng-controller="BaseController as base">
         <button class="button button-positive" ng-click="base.login()">Login with Facebook</button>
-        <button class="button button-stable" ng-click="base.getLoginStatus()">Get Login Status</button>
+        <button class="button button-light" ng-click="base.getLoginStatus()">Get Login Status</button>
         <div id="response">{{base.response}}</div>
         <div class='user-id'>User ID: {{base.userId}}</div>
+        <div class='user-id'>Auth Token: {{base.authToken}}</div>
+        <button class="button button-stable" ng-click="base.getEvents()">Get Events</button>
+        <div class='events'>{{base.events}}</div>
       </div>
       </ion-content>
     </ion-pane>

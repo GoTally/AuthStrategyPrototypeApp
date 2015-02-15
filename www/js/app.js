@@ -20,37 +20,38 @@ var app = angular.module('starter', ['ionic'])
   });
 })
 
-app.controller("BaseController", function() {
+app.controller("BaseController", ['$http', function($http) {
   this.userId = '';
   this.response = '';
 
   this.login = function() {
     var self = this;
     console.log('login');
-    facebookConnectPlugin.login(['public_profile', 'email', 'name', 'user_friends'], function(response) {
+    facebookConnectPlugin.login(['public_profile', 'email', 'user_friends'], function(response) {
       self.response = JSON.stringify(response);
       self.userId = response.authResponse.userID;
-      self.authToken = response.authResponse.accessToken;
+      self.accessToken = response.authResponse.accessToken;
       console.log(self.response)
-      facebookConnectPlugin.api(self.userId + "/?fields='id,email,name", [], function(response) {
+      facebookConnectPlugin.api(self.userId + "/?fields=id,email,name", [], function(response) {
         self.email = response.email;
         self.first_name = response.name.split(" ")[0];
         self.last_name = response.name.split(" ")[1];
-      });
-      // Make API call
-      $.ajax({
-        type: 'POST',
-        url: 'https://auth-strategy-api.herokuapp.com/tokens',
-        data: {
-          uid: self.userId,
+        // Make API call
+        $.ajax({
+          type: 'POST',
+          url: 'https://auth-strategy-api.herokuapp.com/v1/tokens',
+          data: {
+            uid: self.userId,
           auth_token: self.accessToken,
           first_name: self.first_name,
           last_name: self.last_name,
           email: self.email,
           provider: 'facebook'
-        }
-      }).done(function(response) {
-        console.log(response);
+          }
+        }).done(function(response) {
+          self.authToken = response.value
+          console.log(response);
+        });
       });
     });
   };
@@ -63,4 +64,18 @@ app.controller("BaseController", function() {
       self.userId = response.authResponse.userID;
     });
   };
-});
+
+  this.getEvents = function() {
+    var self = this;
+    console.log('Requesting resources from API');
+    $.ajax({
+      type: 'GET',
+      url: 'https://auth-strategy-api.herokuapp.com/v1/events',
+      headers: {'api-token': self.authToken}
+    }).done(function(response) {
+      self.events = JSON.stringify(response);
+    }).fail(function(response, status) {
+      self.events = status;
+    });
+  };
+}]);
